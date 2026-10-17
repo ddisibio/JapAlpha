@@ -1,0 +1,61 @@
+{
+  "name": "japalpha",
+  "version": "1.0.0",
+  "description": "Japanese memory game — Hiragana, Katakana, and Kanji quizzes",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
+    "icon": "env -u ELECTRON_RUN_AS_NODE electron scripts/make-icon.js",
+    "dist": "electron-builder -m -w",
+    "dist:mac": "electron-builder -m",
+    "dist:win": "electron-builder -w"
+  },
+  "build": {
+    "appId": "com.japalpha.app",
+    "productName": "JapAlpha",
+    "files": [
+      "main.js",
+      "renderer/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.education",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "JapAlpha"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3"
+  }
+}

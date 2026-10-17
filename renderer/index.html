@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JapAlpha</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <nav id="tabs">
+      <button class="tab active" data-mode="hiragana">Hiragana</button>
+      <button class="tab" data-mode="katakana">Katakana</button>
+      <button class="tab" data-mode="kanji">Kanji</button>
+    </nav>
+    <div id="score">Score: 0 / 0 &nbsp;·&nbsp; Streak: 0</div>
+  </header>
+
+  <section id="filters">
+    <div id="kana-filters" class="filter-group">
+      <label><input type="checkbox" data-kana="basic" checked /> Basic (46)</label>
+      <label><input type="checkbox" data-kana="dakuten" checked /> Dakuten / Handakuten</label>
+      <label><input type="checkbox" data-kana="yoon" checked /> Yōon</label>
+    </div>
+
+    <div id="kanji-filters" class="filter-group hidden">
+      <div class="row">
+        <label>Lists:
+          <select id="kanji-source">
+            <option value="grade">School grades (Kyōiku)</option>
+            <option value="jlpt">JLPT levels</option>
+          </select>
+        </label>
+      </div>
+      <div class="row" id="kanji-levels"></div>
+    </div>
+  </section>
+
+  <main>
+    <div id="prompt-wrap">
+      <div id="prompt">あ</div>
+      <div id="hint"></div>
+    </div>
+    <div id="choices"></div>
+    <div id="controls">
+      <button id="skip">Skip →</button>
+    </div>
+  </main>
+
+  <script src="data/kana.js"></script>
+  <script src="data/kanji.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
