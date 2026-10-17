@@ -5,8 +5,8 @@
 }
 
 body {
-  font-family: -apple-system, "Hiragino Sans", "Yu Gothic", "Noto Sans JP",
-    sans-serif;
+  font-family:
+    -apple-system, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
   background: #16161e;
   color: #e6e6f0;
   height: 100vh;
@@ -22,12 +22,27 @@ header {
   padding: 14px 20px 6px;
 }
 
+#navs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#view-tabs {
+  display: flex;
+  gap: 8px;
+  padding-right: 14px;
+  margin-right: 6px;
+  border-right: 1px solid #33334a;
+}
+
 #tabs {
   display: flex;
   gap: 8px;
 }
 
-.tab {
+.tab,
+.view-tab {
   background: #23232f;
   color: #a9a9c0;
   border: 1px solid #33334a;
@@ -37,14 +52,20 @@ header {
   cursor: pointer;
   transition: all 0.15s;
 }
-.tab:hover {
+.tab:hover,
+.view-tab:hover {
   color: #fff;
   border-color: #5a5aa0;
 }
-.tab.active {
+.tab.active,
+.view-tab.active {
   background: #4c4cbf;
   color: #fff;
   border-color: #4c4cbf;
+}
+
+.hidden {
+  display: none !important;
 }
 
 #score {
@@ -170,6 +191,90 @@ main {
 }
 .choice.dim {
   opacity: 0.45;
+}
+
+#practice-view,
+#quiz-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#practice-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 0;
+}
+
+#practice-char {
+  font-size: 180px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+}
+#practice-char rt {
+  font-size: 0.3em;
+  font-weight: 400;
+  color: #8f8fb0;
+}
+
+#practice-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 140px;
+  text-align: center;
+}
+#practice-reading {
+  font-size: 44px;
+  color: #c8c8dd;
+}
+#practice-meaning {
+  font-size: 36px;
+  color: #e6e6f0;
+  max-width: 720px;
+}
+#practice-readings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 22px;
+  color: #c8c8dd;
+  max-width: 720px;
+}
+.reading-label {
+  color: #8f8fb0;
+}
+.romaji {
+  color: #8f8fb0;
+  font-size: 0.8em;
+}
+
+#practice-controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0;
+}
+.nav-btn {
+  background: #23232f;
+  border: 1px solid #33334a;
+  border-radius: 8px;
+  padding: 10px 26px;
+  font-size: 15px;
+  color: #e6e6f0;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.nav-btn:hover {
+  border-color: #6a6ad0;
+  background: #2b2b3d;
 }
 
 #controls {

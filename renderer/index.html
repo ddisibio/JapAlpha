@@ -1,53 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>JapAlpha</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header>
-    <nav id="tabs">
-      <button class="tab active" data-mode="hiragana">Hiragana</button>
-      <button class="tab" data-mode="katakana">Katakana</button>
-      <button class="tab" data-mode="kanji">Kanji</button>
-    </nav>
-    <div id="score">Score: 0 / 0 &nbsp;·&nbsp; Streak: 0</div>
-  </header>
-
-  <section id="filters">
-    <div id="kana-filters" class="filter-group">
-      <label><input type="checkbox" data-kana="basic" checked /> Basic (46)</label>
-      <label><input type="checkbox" data-kana="dakuten" checked /> Dakuten / Handakuten</label>
-      <label><input type="checkbox" data-kana="yoon" checked /> Yōon</label>
-    </div>
-
-    <div id="kanji-filters" class="filter-group hidden">
-      <div class="row">
-        <label>Lists:
-          <select id="kanji-source">
-            <option value="grade">School grades (Kyōiku)</option>
-            <option value="jlpt">JLPT levels</option>
-          </select>
-        </label>
+  <head>
+    <meta charset="UTF-8" />
+    <title>JapAlpha</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div id="navs">
+        <nav id="view-tabs">
+          <button class="view-tab active" data-view="practice">Practice</button>
+          <button class="view-tab" data-view="quiz">Quiz</button>
+        </nav>
+        <nav id="tabs">
+          <button class="tab active" data-mode="hiragana">Hiragana</button>
+          <button class="tab" data-mode="katakana">Katakana</button>
+          <button class="tab" data-mode="kanji">Kanji</button>
+        </nav>
       </div>
-      <div class="row" id="kanji-levels"></div>
-    </div>
-  </section>
+      <div id="score">Card 1 / 104</div>
+    </header>
 
-  <main>
-    <div id="prompt-wrap">
-      <div id="prompt">あ</div>
-      <div id="hint"></div>
-    </div>
-    <div id="choices"></div>
-    <div id="controls">
-      <button id="skip">Skip →</button>
-    </div>
-  </main>
+    <section id="filters">
+      <div id="kana-filters" class="filter-group">
+        <label
+          ><input type="checkbox" data-kana="basic" checked /> Basic (46)</label
+        >
+        <label
+          ><input type="checkbox" data-kana="dakuten" checked /> Dakuten /
+          Handakuten</label
+        >
+        <label><input type="checkbox" data-kana="yoon" checked /> Yōon</label>
+      </div>
 
-  <script src="data/kana.js"></script>
-  <script src="data/kanji.js"></script>
-  <script src="app.js"></script>
-</body>
+      <div id="kanji-filters" class="filter-group hidden">
+        <div class="row">
+          <label
+            >Lists:
+            <select id="kanji-source">
+              <option value="grade">School grades (Kyōiku)</option>
+              <option value="jlpt">JLPT levels</option>
+            </select>
+          </label>
+        </div>
+        <div class="row" id="kanji-levels"></div>
+      </div>
+    </section>
+
+    <main>
+      <div id="practice-view">
+        <div id="practice-card">
+          <div id="practice-char">あ</div>
+          <div id="practice-details">
+            <div id="practice-reading"></div>
+            <div id="practice-meaning"></div>
+            <div id="practice-readings"></div>
+          </div>
+        </div>
+        <div id="practice-controls">
+          <button id="practice-prev" class="nav-btn">← Prev</button>
+          <button id="practice-shuffle" class="nav-btn">Shuffle</button>
+          <button id="practice-next" class="nav-btn">Next →</button>
+        </div>
+      </div>
+
+      <div id="quiz-view" class="hidden">
+        <div id="prompt-wrap">
+          <div id="prompt">あ</div>
+          <div id="hint"></div>
+        </div>
+        <div id="choices"></div>
+        <div id="controls">
+          <button id="skip">Skip →</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="data/kana.js"></script>
+    <script src="data/kanji.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

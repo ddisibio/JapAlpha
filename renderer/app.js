@@ -4,8 +4,10 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
 
 const state = {
+  view: "practice", // "practice" | "quiz"
   mode: "hiragana",
   pool: [],
+  index: 0,
   current: null,
   answered: false,
   score: 0,
@@ -26,7 +28,7 @@ function buildPool() {
   if (state.mode === "kanji") {
     const key = kanjiFilter.source === "grade" ? "g" : "j";
     state.pool = window.KANJI_DATA.filter((k) =>
-      kanjiFilter.levels.has(k[key])
+      kanjiFilter.levels.has(k[key]),
     );
   } else {
     const groups = new Set(KANA_GROUPS());
@@ -154,20 +156,122 @@ function answer(opt, btn) {
     }`;
   }
 
-  updateScore();
+  updateStatus();
   const q = state.current;
   setTimeout(
     () => {
-      if (state.answered && state.current === q) nextQuestion();
+      if (state.view === "quiz" && state.answered && state.current === q)
+        nextQuestion();
     },
-    correct ? 1200 : 2400
+    correct ? 1200 : 2400,
   );
 }
 
-function updateScore() {
-  $(
-    "#score"
-  ).innerHTML = `Score: ${state.score} / ${state.total} &nbsp;·&nbsp; Streak: ${state.streak}`;
+// ---- Practice mode ----
+
+// Character -> romaji lookup built from the kana tables (includes yōon
+// digraphs like きゃ, so longest-match handles them correctly).
+const ROMAJI = new Map();
+for (const list of Object.values(window.KANA_DATA))
+  for (const { k, a } of list) if (!ROMAJI.has(k)) ROMAJI.set(k, a);
+
+function kanaToRomaji(str) {
+  let out = "";
+  let gem = false; // small-tsu doubles the next consonant
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (c === "っ" || c === "ッ") {
+      gem = true;
+      continue;
+    }
+    let r;
+    const two = str.slice(i, i + 2);
+    if (ROMAJI.has(two)) {
+      r = ROMAJI.get(two);
+      i++;
+    } else {
+      r = ROMAJI.get(c) || c; // keep okurigana markers (. -) as-is
+    }
+    if (gem && /^[a-z]/i.test(r)) {
+      r = r[0] + r;
+      gem = false;
+    }
+    out += r;
+  }
+  return out.replace(/oo|ou/g, "ō").replace(/uu/g, "ū");
+}
+
+function renderCard() {
+  const n = state.pool.length;
+  const charEl = $("#practice-char");
+  const readingEl = $("#practice-reading");
+  const meanEl = $("#practice-meaning");
+  const readingsEl = $("#practice-readings");
+
+  if (!n) {
+    state.index = 0;
+    charEl.textContent = "—";
+    readingEl.textContent = "";
+    meanEl.textContent = "Select at least one item to study.";
+    readingsEl.textContent = "";
+    updateStatus();
+    return;
+  }
+
+  state.index = ((state.index % n) + n) % n;
+  const item = state.pool[state.index];
+
+  if (state.mode === "kanji") {
+    const furi = primaryReading(item);
+    charEl.innerHTML = furi
+      ? `<ruby><rb>${item.k}</rb><rt>${furi}</rt></ruby>`
+      : item.k;
+    readingEl.textContent = "";
+    meanEl.textContent = item.m.join(", ");
+    readingsEl.innerHTML = "";
+    for (const [label, list] of [
+      ["Kun", item.kun],
+      ["On", item.on],
+    ]) {
+      if (!list.length) continue;
+      const line = document.createElement("div");
+      line.className = "reading-line";
+      line.innerHTML =
+        `<span class="reading-label">${label}:</span> ` +
+        list
+          .map((r) => `${r} <span class="romaji">(${kanaToRomaji(r)})</span>`)
+          .join("、");
+      readingsEl.appendChild(line);
+    }
+  } else {
+    charEl.textContent = item.k;
+    readingEl.textContent = item.a;
+    meanEl.textContent = "";
+    readingsEl.textContent = "";
+  }
+  updateStatus();
+}
+
+function resetPractice() {
+  buildPool();
+  state.index = 0;
+  renderCard();
+}
+
+function refresh() {
+  if (state.view === "quiz") nextQuestion();
+  else resetPractice();
+}
+
+function updateStatus() {
+  const el = $("#score");
+  if (state.view === "practice") {
+    el.textContent = state.pool.length
+      ? `Card ${state.index + 1} / ${state.pool.length}`
+      : "No items selected";
+  } else {
+    el.innerHTML = `Score: ${state.score} / ${state.total} &nbsp;·&nbsp; Streak: ${state.streak}`;
+  }
 }
 
 function buildKanjiLevels() {
@@ -188,13 +292,13 @@ function buildKanjiLevels() {
       cb.checked
         ? kanjiFilter.levels.add(value)
         : kanjiFilter.levels.delete(value);
-      nextQuestion();
+      refresh();
     });
     lab.appendChild(cb);
     lab.append(
       `${
         kanjiFilter.source === "grade" ? `Grade ${value}` : `N${value}`
-      } (${count})`
+      } (${count})`,
     );
     box.appendChild(lab);
   }
@@ -203,26 +307,61 @@ function buildKanjiLevels() {
 function setMode(mode) {
   state.mode = mode;
   $$(".tab").forEach((t) =>
-    t.classList.toggle("active", t.dataset.mode === mode)
+    t.classList.toggle("active", t.dataset.mode === mode),
   );
   $("#kana-filters").classList.toggle("hidden", mode === "kanji");
   $("#kanji-filters").classList.toggle("hidden", mode !== "kanji");
-  nextQuestion();
+  refresh();
 }
 
+function setView(view) {
+  state.view = view;
+  $$(".view-tab").forEach((t) =>
+    t.classList.toggle("active", t.dataset.view === view),
+  );
+  $("#practice-view").classList.toggle("hidden", view !== "practice");
+  $("#quiz-view").classList.toggle("hidden", view !== "quiz");
+  refresh();
+}
+
+$$(".view-tab").forEach((t) =>
+  t.addEventListener("click", () => setView(t.dataset.view)),
+);
 $$(".tab").forEach((t) =>
-  t.addEventListener("click", () => setMode(t.dataset.mode))
+  t.addEventListener("click", () => setMode(t.dataset.mode)),
 );
-$$("input[data-kana]").forEach((cb) =>
-  cb.addEventListener("change", nextQuestion)
-);
+$$("input[data-kana]").forEach((cb) => cb.addEventListener("change", refresh));
 $("#kanji-source").addEventListener("change", (e) => {
   kanjiFilter.source = e.target.value;
   kanjiFilter.levels = new Set([e.target.value === "grade" ? 1 : 5]);
   buildKanjiLevels();
-  nextQuestion();
+  refresh();
 });
 $("#skip").addEventListener("click", nextQuestion);
 
+$("#practice-prev").addEventListener("click", () => {
+  state.index--;
+  renderCard();
+});
+$("#practice-next").addEventListener("click", () => {
+  state.index++;
+  renderCard();
+});
+$("#practice-shuffle").addEventListener("click", () => {
+  shuffle(state.pool);
+  state.index = 0;
+  renderCard();
+});
+document.addEventListener("keydown", (e) => {
+  if (state.view !== "practice") return;
+  if (e.key === "ArrowLeft") {
+    state.index--;
+    renderCard();
+  } else if (e.key === "ArrowRight") {
+    state.index++;
+    renderCard();
+  }
+});
+
 buildKanjiLevels();
-nextQuestion();
+refresh();
