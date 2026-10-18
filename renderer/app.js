@@ -344,6 +344,69 @@ $("#skip").addEventListener("click", nextQuestion);
 const THEME_KEY = "japalpha-theme";
 const SCALE_KEY = "japalpha-scale";
 const COLORFUL_KEY = "japalpha-colorful";
+const VOICE_KEY = "japalpha-voice";
+
+// ---- Japanese TTS voices ----
+// Installed voices vary by OS, so offer up to 4: 2 male + 2 female.
+// Gender is inferred from common Japanese voice names.
+const MALE_VOICE = /ichiro|otoya|hattori|hideto|male/i;
+const FEMALE_VOICE = /haruka|ayumi|sayaka|kyoko|kanako|misaki|mizuki|female/i;
+
+function jaVoices() {
+  return speechSynthesis
+    .getVoices()
+    .filter((v) => v.lang.replace("_", "-").startsWith("ja"));
+}
+
+function populateVoices() {
+  const sel = $("#voice-select");
+  const saved = localStorage.getItem(VOICE_KEY);
+  const voices = jaVoices();
+
+  const male = voices.filter((v) => MALE_VOICE.test(v.name));
+  const female = voices.filter((v) => FEMALE_VOICE.test(v.name));
+  const unknown = voices.filter(
+    (v) => !MALE_VOICE.test(v.name) && !FEMALE_VOICE.test(v.name),
+  );
+  const picked = [...male.slice(0, 2), ...female.slice(0, 2)];
+  for (const v of [...unknown, ...voices]) {
+    if (picked.length >= 4) break;
+    if (!picked.includes(v)) picked.push(v);
+  }
+
+  sel.innerHTML = "";
+  if (!picked.length) {
+    const opt = document.createElement("option");
+    opt.textContent = "No Japanese voices — install via OS speech settings";
+    opt.disabled = true;
+    sel.appendChild(opt);
+    return;
+  }
+  for (const v of picked) {
+    const gender = MALE_VOICE.test(v.name)
+      ? "Male"
+      : FEMALE_VOICE.test(v.name)
+        ? "Female"
+        : "";
+    const opt = document.createElement("option");
+    opt.value = v.voiceURI;
+    opt.textContent = gender ? `${v.name} (${gender})` : v.name;
+    sel.appendChild(opt);
+  }
+  sel.value = saved;
+  if (!sel.value) {
+    sel.value = picked[0].voiceURI;
+    localStorage.setItem(VOICE_KEY, sel.value);
+  }
+}
+
+$("#voice-select").addEventListener("change", (e) => {
+  localStorage.setItem(VOICE_KEY, e.target.value);
+});
+// Voices load asynchronously in Chromium — populate when they're ready
+// and again now in case they're already cached.
+speechSynthesis.addEventListener("voiceschanged", populateVoices);
+populateVoices();
 
 const themeSel = $("#theme-select");
 themeSel.value = document.documentElement.dataset.theme;
@@ -396,6 +459,20 @@ $("#practice-prev").addEventListener("click", () => {
 $("#practice-next").addEventListener("click", () => {
   state.index++;
   renderCard();
+});
+$("#practice-speak").addEventListener("click", () => {
+  const item = state.pool[state.index];
+  if (!item || !window.speechSynthesis) return;
+  // Speak the kana reading for kanji so the TTS can't pick a wrong reading.
+  const text = state.mode === "kanji" ? primaryReading(item) : item.k;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP";
+  const voice = jaVoices().find(
+    (v) => v.voiceURI === localStorage.getItem(VOICE_KEY),
+  );
+  if (voice) u.voice = voice;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
 });
 $("#practice-shuffle").addEventListener("click", () => {
   shuffle(state.pool);
