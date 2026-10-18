@@ -1,4 +1,4 @@
-An homage to a program of the same name that I used in the late '90s to learn Japanese.
+An homage to a program of the same name that I used in the late '90s to study Japanese.
 
 Not affiliated in any way to the original program.
 
