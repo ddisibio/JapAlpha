@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <title>JapAlpha</title>
     <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Apply saved settings before first paint to avoid a flash.
+      document.documentElement.dataset.theme =
+        localStorage.getItem("japalpha-theme") || "default";
+      document.documentElement.dataset.colorful =
+        localStorage.getItem("japalpha-colorful") || "0";
+      document.documentElement.style.setProperty(
+        "--ui-scale",
+        localStorage.getItem("japalpha-scale") || "1",
+      );
+    </script>
   </head>
   <body>
     <header>
@@ -18,7 +29,39 @@
           <button class="tab" data-mode="kanji">Kanji</button>
         </nav>
       </div>
-      <div id="score">Card 1 / 104</div>
+      <div id="header-right">
+        <div id="score">Card 1 / 104</div>
+        <div id="settings-wrap">
+          <button id="settings-btn" class="icon-btn" title="Settings">⚙</button>
+          <div id="settings-panel" class="hidden">
+            <label
+              >Theme
+              <select id="theme-select">
+                <option value="default">Default</option>
+                <option value="dracula">Dracula</option>
+                <option value="nord">Nord</option>
+                <option value="monokai">Monokai</option>
+                <option value="solarized">Solarized Dark</option>
+                <option value="gruvbox">Gruvbox Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </label>
+            <label
+              >Size
+              <select id="scale-select">
+                <option value="0.85">Compact (85%)</option>
+                <option value="1" selected>Default (100%)</option>
+                <option value="1.25">Large (125%)</option>
+                <option value="1.5">Extra large (150%)</option>
+              </select>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" id="colorful-check" />
+              Colorful characters &amp; romaji
+            </label>
+          </div>
+        </div>
+      </div>
     </header>
 
     <section id="filters">

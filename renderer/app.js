@@ -79,7 +79,7 @@ function nextQuestion() {
     state.current = null;
     $("#prompt").textContent = "—";
     $("#choices").innerHTML =
-      '<p style="grid-column:1/-1;color:#a9a9c0;text-align:center">Select at least two items to quiz.</p>';
+      '<p style="grid-column:1/-1;color:var(--muted);text-align:center">Select at least two items to quiz.</p>';
     return;
   }
 
@@ -339,6 +339,56 @@ $("#kanji-source").addEventListener("change", (e) => {
 });
 $("#skip").addEventListener("click", nextQuestion);
 
+// ---- Settings (theme + UI scale) ----
+
+const THEME_KEY = "japalpha-theme";
+const SCALE_KEY = "japalpha-scale";
+const COLORFUL_KEY = "japalpha-colorful";
+
+const themeSel = $("#theme-select");
+themeSel.value = document.documentElement.dataset.theme;
+if (!themeSel.value) {
+  // Stored value didn't match an option — fall back to default.
+  document.documentElement.dataset.theme = "default";
+  themeSel.value = "default";
+}
+themeSel.addEventListener("change", (e) => {
+  document.documentElement.dataset.theme = e.target.value;
+  localStorage.setItem(THEME_KEY, e.target.value);
+});
+
+const scaleSel = $("#scale-select");
+scaleSel.value =
+  localStorage.getItem(SCALE_KEY) ||
+  document.documentElement.style.getPropertyValue("--ui-scale") ||
+  "1";
+if (!scaleSel.value) scaleSel.value = "1";
+scaleSel.addEventListener("change", (e) => {
+  document.documentElement.style.setProperty("--ui-scale", e.target.value);
+  localStorage.setItem(SCALE_KEY, e.target.value);
+});
+
+const colorfulCheck = $("#colorful-check");
+colorfulCheck.checked =
+  (document.documentElement.dataset.colorful || "0") === "1";
+colorfulCheck.addEventListener("change", () => {
+  const v = colorfulCheck.checked ? "1" : "0";
+  document.documentElement.dataset.colorful = v;
+  localStorage.setItem(COLORFUL_KEY, v);
+});
+
+const settingsWrap = $("#settings-wrap");
+$("#settings-btn").addEventListener("click", () =>
+  $("#settings-panel").classList.toggle("hidden"),
+);
+document.addEventListener("click", (e) => {
+  if (!settingsWrap.contains(e.target))
+    $("#settings-panel").classList.add("hidden");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") $("#settings-panel").classList.add("hidden");
+});
+
 $("#practice-prev").addEventListener("click", () => {
   state.index--;
   renderCard();
@@ -354,6 +404,8 @@ $("#practice-shuffle").addEventListener("click", () => {
 });
 document.addEventListener("keydown", (e) => {
   if (state.view !== "practice") return;
+  if (e.target.closest("select, input")) return;
+  if (!$("#settings-panel").classList.contains("hidden")) return;
   if (e.key === "ArrowLeft") {
     state.index--;
     renderCard();
