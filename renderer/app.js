@@ -103,7 +103,7 @@ function nextQuestion() {
 }
 
 function renderChoices(correct) {
-  const n = Math.min(4, state.pool.length);
+  const n = Math.min(8, state.pool.length);
   const options = shuffle([correct, ...pickDistractors(correct, n - 1)]);
   const box = $("#choices");
   box.innerHTML = "";

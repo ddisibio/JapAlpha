@@ -156,9 +156,9 @@ main {
 
 #choices {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  max-width: 720px;
+  max-width: 900px;
   width: 100%;
   margin: 12px auto;
 }
@@ -167,8 +167,8 @@ main {
   background: #23232f;
   border: 1px solid #33334a;
   border-radius: 10px;
-  padding: 18px 14px;
-  font-size: 19px;
+  padding: 14px 10px;
+  font-size: 17px;
   color: #e6e6f0;
   cursor: pointer;
   transition: all 0.12s;
